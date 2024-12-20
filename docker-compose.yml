@@ -1,0 +1,66 @@
+services:
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    ports:
+      - "3011:3000"
+    networks:
+      - eb
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    ports:
+      - "3012:3000"
+    networks:
+      - eb
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  rabbitmq:
+    build:
+      context: ./rabbitmq
+      dockerfile: Dockerfile
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: myuser
+      RABBITMQ_DEFAULT_PASS: mypassword
+    networks:
+      - eb
+
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    networks:
+      - eb
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "3010:80"
+    networks:
+      - eb
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+
+networks:
+  eb:

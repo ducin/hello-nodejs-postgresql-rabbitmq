@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumer</title>
+</head>
+<body>
+    <h1>Consumer</h1>
+    <ul id="messageList"></ul>
+
+    <script>
+        async function fetchMessages() {
+            const response = await fetch('/messages');
+            const messages = await response.json();
+            const messageList = document.getElementById('messageList');
+            messageList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                messageList.appendChild(li);
+            });
+        }
+
+        setInterval(fetchMessages, 1000); // Fetch messages every second.
+        fetchMessages(); // Initial fetch.
+    </script>
+</body>
+</html>
