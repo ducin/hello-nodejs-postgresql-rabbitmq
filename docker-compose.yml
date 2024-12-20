@@ -1,27 +1,4 @@
 services:
-  producer:
-    build:
-      context: ./producer
-      dockerfile: Dockerfile
-    ports:
-      - "3011:3000"
-    networks:
-      - eb
-    depends_on:
-      - rabbitmq
-      - postgres
-
-  consumer:
-    build:
-      context: ./consumer
-      dockerfile: Dockerfile
-    ports:
-      - "3012:3000"
-    networks:
-      - eb
-    depends_on:
-      - rabbitmq
-      - postgres
 
   rabbitmq:
     build:
@@ -35,6 +12,11 @@ services:
       RABBITMQ_DEFAULT_PASS: mypassword
     networks:
       - eb
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 2s
+      timeout: 30s
+      retries: 5
 
   postgres:
     image: postgres:14
@@ -58,6 +40,34 @@ services:
       - eb
     depends_on:
       - postgres
+
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    ports:
+      - "3011:3000"
+    networks:
+      - eb
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    ports:
+      - "3012:3000"
+    networks:
+      - eb
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
 
 volumes:
   pgdata:

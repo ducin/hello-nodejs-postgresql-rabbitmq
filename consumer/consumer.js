@@ -6,9 +6,12 @@ const app = express();
 const PORT = 3000;
 let messages = [];
 
+const user = `myuser`
+const pswd = `mypassword`
+
 async function connect() {
-    const connection = await amqplib.connect('amqp://rabbitmq');
-    const channel = await connection.createChannel();
+    const connection = await amqplib.connect(`amqp://${user}:${pswd}@rabbitmq`);
+    channel = await connection.createChannel();
     await channel.assertQueue('task_queue', { durable: true });
 
     channel.consume('task_queue', (msg) => {
