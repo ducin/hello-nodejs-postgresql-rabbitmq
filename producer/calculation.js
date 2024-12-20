@@ -6,7 +6,8 @@ class CalculationService {
         
         try {
             // Simulate complex calculation
-            const result = Array.from({ length: 1000000 }, (_, i) => i)
+            const orderOfMagnitude = Math.floor(Math.random() * 6) + 1;
+            const result = Array.from({ length: orderOfMagnitude }, (_, i) => i)
                 .reduce((sum, current) => sum + current, 0);
             
             span.setAttribute('calculation.result', result);

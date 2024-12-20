@@ -1,0 +1,111 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "panels": [
+    {
+      "title": "Message Rates",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(rabbitmq_queue_messages_published_total{queue=\"task_queue\"}[5m])",
+          "legendFormat": "Published"
+        },
+        {
+          "expr": "rate(rabbitmq_queue_messages_delivered_total{queue=\"task_queue\"}[5m])",
+          "legendFormat": "Delivered"
+        },
+        {
+          "expr": "rate(rabbitmq_queue_messages_redelivered_total{queue=\"task_queue\"}[5m])",
+          "legendFormat": "Redelivered"
+        }
+      ]
+    },
+    {
+      "title": "Queue Status",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rabbitmq_queue_messages_ready{queue=\"task_queue\"}",
+          "legendFormat": "Messages Ready"
+        },
+        {
+          "expr": "rabbitmq_queue_messages_unacked{queue=\"task_queue\"}",
+          "legendFormat": "Unacknowledged"
+        },
+        {
+          "expr": "rabbitmq_queue_consumers{queue=\"task_queue\"}",
+          "legendFormat": "Consumers"
+        }
+      ]
+    },
+    {
+      "title": "Message Processing Time",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(rabbitmq_queue_messages_deliver_get_total{queue=\"task_queue\"}[1m])",
+          "legendFormat": "Processing Rate"
+        }
+      ]
+    },
+    {
+      "title": "Memory Usage",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rabbitmq_queue_memory{queue=\"task_queue\"}",
+          "legendFormat": "Memory (bytes)"
+        }
+      ]
+    },
+    {
+      "title": "Consumer Utilization",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "rabbitmq_queue_consumer_utilisation{queue=\"task_queue\"}",
+          "legendFormat": "Consumer Utilization"
+        }
+      ],
+      "options": {
+        "maxValue": 100,
+        "minValue": 0
+      }
+    },
+    {
+      "title": "Error Rates",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(rabbitmq_channel_messages_unroutable_returned_total[5m])",
+          "legendFormat": "Unroutable Messages"
+        },
+        {
+          "expr": "rate(rabbitmq_channel_messages_unroutable_dropped_total[5m])",
+          "legendFormat": "Dropped Messages"
+        }
+      ]
+    },
+    {
+      "title": "Connection Status",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "rabbitmq_connections",
+          "legendFormat": "Active Connections"
+        },
+        {
+          "expr": "rabbitmq_channels",
+          "legendFormat": "Active Channels"
+        }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 30,
+  "title": "RabbitMQ Metrics",
+  "uid": "rabbitmq-metrics",
+  "version": 1
+}
