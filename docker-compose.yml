@@ -55,37 +55,37 @@ services:
     depends_on:
       - postgres
 
-  # producer:
-  #   build:
-  #     context: ./producer
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - postgres/postgres.env
-  #   ports:
-  #     - "3011:3000"
-  #   networks:
-  #     - appNetwork
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     postgres:
-  #       condition: service_started
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    env_file:
+      - postgres/postgres.env
+    ports:
+      - "3011:3000"
+    networks:
+      - appNetwork
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
 
-  # consumer:
-  #   build:
-  #     context: ./consumer
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - postgres/postgres.env
-  #   ports:
-  #     - "3012:3000"
-  #   networks:
-  #     - appNetwork
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     postgres:
-  #       condition: service_started
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    env_file:
+      - postgres/postgres.env
+    ports:
+      - "3012:3000"
+    networks:
+      - appNetwork
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
 
   prometheus:
     image: prom/prometheus

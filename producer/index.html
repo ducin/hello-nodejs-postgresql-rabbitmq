@@ -4,16 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Producer</title>
+    <style>
+        .blog-post {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        .comments {
+            margin-left: 20px;
+        }
+        .comment {
+            border-left: 2px solid #ccc;
+            margin: 5px 0;
+            padding: 5px 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Producer</h1>
     <button id="sendButton">Send Message</button>
+    <button id="refreshBlog">Refresh Blog Posts</button>
+    
+    <div id="blogPosts"></div>
 
     <script>
         document.getElementById('sendButton').addEventListener('click', async () => {
             const response = await fetch('/send', { method: 'POST' });
             const data = await response.json();
         });
+
+        async function refreshBlogPosts() {
+            try {
+                const response = await fetch('/blog');
+                const posts = await response.json();
+                
+                const container = document.getElementById('blogPosts');
+                container.innerHTML = posts.map(post => `
+                    <div class="blog-post">
+                        <h2>${post.author}</h2>
+                        <p>${post.content}</p>
+                        <div class="comments">
+                            <h3>Comments:</h3>
+                            ${post.comments.map(comment => `
+                                <div class="comment">
+                                    <p>${comment.content}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to fetch blog posts:', error);
+            }
+        }
+
+        document.getElementById('refreshBlog').addEventListener('click', refreshBlogPosts);
+        // Load posts on page load
+        refreshBlogPosts();
     </script>
 </body>
 </html>
