@@ -14,7 +14,7 @@ services:
     volumes:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     networks:
-      - eb
+      - appNetwork
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
       interval: 2s
@@ -25,16 +25,19 @@ services:
     build:
       context: ./postgres
       dockerfile: Dockerfile
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-mydb}
+    env_file:
+      - postgres/postgres.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - eb
+      - appNetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -48,37 +51,41 @@ services:
       - ./pgadmin/servers.json:/pgadmin4/servers.json
       - pgadmin-data:/var/lib/pgadmin
     networks:
-      - eb
+      - appNetwork
     depends_on:
       - postgres
 
-  producer:
-    build:
-      context: ./producer
-      dockerfile: Dockerfile
-    ports:
-      - "3011:3000"
-    networks:
-      - eb
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_started
+  # producer:
+  #   build:
+  #     context: ./producer
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - postgres/postgres.env
+  #   ports:
+  #     - "3011:3000"
+  #   networks:
+  #     - appNetwork
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_started
 
-  consumer:
-    build:
-      context: ./consumer
-      dockerfile: Dockerfile
-    ports:
-      - "3012:3000"
-    networks:
-      - eb
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_started
+  # consumer:
+  #   build:
+  #     context: ./consumer
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - postgres/postgres.env
+  #   ports:
+  #     - "3012:3000"
+  #   networks:
+  #     - appNetwork
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_started
 
   prometheus:
     image: prom/prometheus
@@ -88,7 +95,7 @@ services:
       - prometheus_data:/prometheus
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - eb
+      - appNetwork
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -106,7 +113,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     networks:
-      - eb
+      - appNetwork
     depends_on:
       - prometheus
 
@@ -122,7 +129,7 @@ services:
       - "14268:14268"
       - "14269:14269"
     networks:
-      - eb
+      - appNetwork
 
 volumes:
   pgdata:
@@ -132,4 +139,4 @@ volumes:
   pgadmin-data:
 
 networks:
-  eb:
+  appNetwork:

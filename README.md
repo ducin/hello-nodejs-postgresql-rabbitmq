@@ -1,6 +1,9 @@
 # run
 
     docker-compose up --build
+    docker-compose up --force-recreate
+
+For docker-compose the correct way to remove volumes would be `docker-compose down --volumes` or `docker-compose down --rmi all --volumes`.
 
 prometheus metrics:
 
